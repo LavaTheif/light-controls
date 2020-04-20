@@ -1,0 +1,136 @@
+<html>
+<head>
+
+<title>Lights</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+<style>
+body{
+	background-color: deepskyblue;
+	text-align: center;
+}
+.container{
+	width: 100%;
+	height: 100%;
+	border: 2px solid black;
+}
+
+#light-container{
+	position: absolute;
+	left: 0;
+}
+#alarm-container{
+	position: absolute;
+	left: 33.3%;
+}
+#music-container{
+	position: absolute;
+	left: 66.6%;
+}
+
+.btn{
+	width: 33.3%;
+	height: auto;
+	font-size: xx-large;
+	margin: 10px 33.3% 10px 33.3%;
+	background-color: lightskyblue;
+	outline: 0;
+	border: 1px solid gray;
+	border-radius: 10px;
+}
+.btn:active, .text:focus{
+	background-color: dodgerblue;
+}
+
+.text{
+	width: 50%;
+	height: auto;
+	font-size: xx-large;
+	margin: 10px 25% 10px 25%;
+	text-align: center;
+	background-color: lightskyblue;
+	outline: 0;
+	border: 1px solid gray;
+	border-radius: 10px;
+}
+
+#cover{
+	background-color: rgba(0,0,0,0.5);
+	width: 100%;
+	height:100%;
+	z-index:100;
+	position: absolute;
+	display:none;
+	left: 0;
+	top: 0;
+}
+#close-btn{
+	top: 50%;
+	position: relative;
+	margin-top: 25%;
+}
+#msg-box{
+    top: calc(50% - 250px);
+    position: relative;
+    height: 250px;
+    background-color: deepskyblue;
+    border: 1px solid gray;
+    border-radius: 10px;
+    width: 33.3%;
+    font-size: xx-large;
+    margin: 10px 33.3% 10px 33.3%;
+    color: red;
+}
+
+br{
+	font-size: xx-large;
+}
+
+</style>
+
+<script>
+
+function setLen(num, len){
+	num = num +"";
+	while(num.length < len)
+		num = "0"+num;
+
+	return num
+}
+
+let ontime = SERVER_DAT.ON_TIME;
+$(document).ready(function(){
+	$('#lights-on').val(setLen(ontime.hour, 2)+":"+setLen(ontime.min, 2));
+	$('#rave-interval').val(250);
+});
+
+async function send(route, post){
+	if(!post){
+		post = {};
+	}
+
+	let dat = await fetch("http://"+window.location.host+route, {method: "POST", body: JSON.stringify(post)});
+	console.log(dat);
+}
+
+function getTime(elm){
+	let values = elm.val().split(":");
+	return {"hour": Number(values[0]), "min": Number(values[1])};
+}
+
+</script>
+</head>
+<body>
+
+<div class="container" id="light-container">
+	<h1>Lights</h1>
+	<button class="btn" onclick="send('/api/lights/on')">On</button>
+	<button class="btn" onclick="send('/api/lights/off')">Off</button>
+	
+	<button class="btn" onclick="send('/api/lights/rave', {interval: $('#rave-interval').val()})">Rave</button>
+	<input id="rave-interval" class="text">
+	<br>
+	<input id="lights-on" type=time class="text" onfocusout="send('/api/lights/set_on', getTime($('#lights-on')))"/>
+</div>
+</body>
+</html>
